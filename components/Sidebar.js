@@ -9,8 +9,10 @@ import { auth, db } from '../firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollection } from 'react-firebase-hooks/firestore';
 import Chat from './Chat';
+import { useRouter } from 'next/router';
 
 function Sidebar() {
+    const router = useRouter();
     const [user] = useAuthState(auth);
     const userChatRef = db.collection('chats').where('users','array-contains', user.email);
     
@@ -34,13 +36,20 @@ function Sidebar() {
             (chat) => 
                 chat.data().users.find((user) => user === recipientEmail)?.length > 0
             );
+    const goHome = () => {
+        router.push('/')
+    }
+
+    const handleClickSignOut = () => {
+        auth.signOut()
+    }
 
     return <Container>
             <Header>
-                <UserAvatar src={user?.photoURL} onClick={() => auth.signOut()}/>
+                <UserAvatar src={user?.photoURL} onClick={handleClickSignOut}/>
 
                 <IconsContainer>
-                    <IconButton>
+                    <IconButton onClick={goHome}>
                         <ChatIcon/>
                     </IconButton>
 
@@ -72,7 +81,19 @@ function Sidebar() {
 export default Sidebar
 
 const Container = styled.div`
+    flex: 0.45;
+    border-right: 1px solid whitesmoke;
+    height: 100vh;
+    min-width: 300px;
+    max-width: 350px;
+    overflow-y: scroll;
 
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    ::-webkit-scrollbar {
+    display: none;
+    }
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 `;
 
 const SidebarButton = styled(Button)`
